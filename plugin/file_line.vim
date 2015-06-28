@@ -1,81 +1,74 @@
-" Avoid installing twice or when in unsupported Vim version.
 if exists('g:loaded_file_line') || (v:version < 701)
-	finish
+  finish
 endif
 let g:loaded_file_line = 1
 
-" list with all possible expressions :
-"	 matches file(10) or file(line:col)
-"	 Accept file:line:column: or file:line:column and file:line also
-let s:regexpressions = [ '\([^(]\{-1,}\)(\%(\(\d\+\)\%(:\(\d*\):\?\)\?\))', '\(.\{-1,}\):\%(\(\d\+\)\%(:\(\d*\):\?\)\?\)\?' ]
 
-function! s:reopenAndGotoLine(file_name, line_num, col_num)
-	if !filereadable(a:file_name)
-		return
-	endif
+"
+" Define a list with all possible expressions:
+" * matches file(10) or file(line:col)
+" * Accept file:line:column: or file:line:column and file:line also
+"
+let s:regexps = [
+      \ '\([^(]\{-1,}\)(\%(\(\d\+\)\%(:\(\d*\):\?\)\?\))',
+      \ '\(.\{-1,}\):\%(\(\d\+\)\%(:\(\d*\):\?\)\?\)\?'
+      \]
 
-	let l:bufn = bufnr("%")
 
-	exec "keepalt edit " . fnameescape(a:file_name)
-	exec a:line_num
-	exec "normal! " . a:col_num . '|'
-	if foldlevel(a:line_num) > 0
-		exec "normal! zv"
-	endif
-	exec "normal! zz"
+augroup file_line
+  autocmd!
+  autocmd VimEnter * call s:startup()
+augroup END
 
-	exec "bwipeout " l:bufn
-	exec "filetype detect"
-endfunction
-
-function! s:gotoline()
-	let file = bufname("%")
-
-	" :e command calls BufRead even though the file is a new one.
-	" As a workaround Jonas Pfenniger<jonas@pfenniger.name> added an
-	" AutoCmd BufRead, this will test if this file actually exists before
-	" searching for a file and line to goto.
-	if (filereadable(file) || file == '')
-		return file
-	endif
-
-	let l:names = []
-	for regexp in s:regexpressions
-		let l:names =  matchlist(file, regexp)
-
-		if ! empty(l:names)
-			let file_name = l:names[1]
-			let line_num  = l:names[2] == ''? '0' : l:names[2]
-			let  col_num  = l:names[3] == ''? '0' : l:names[3]
-			call s:reopenAndGotoLine(file_name, line_num, col_num)
-			return file_name
-		endif
-	endfor
-endfunction
-
-" Handle entry in the argument list.
-" This is called via `:argdo` when entering Vim.
-function! s:handle_arg()
-	let argname = expand('%')
-	let fname = s:gotoline()
-	if fname != argname
-		let argidx = argidx()
-		exec (argidx+1).'argdelete'
-		exec (argidx)'argadd' fname
-	endif
-endfunction
 
 function! s:startup()
-	autocmd! BufNewFile * nested call s:gotoline()
-	autocmd! BufRead * nested call s:gotoline()
+  augroup file_line
+    autocmd! BufNewFile * nested call s:goto_file_line()
+    autocmd! BufRead    * nested call s:goto_file_line()
+  augroup END
 
-	if argc() > 0
-		let argidx=argidx()
-		argdo call s:handle_arg()
-		exec (argidx+1).'argument'
-		" Manually call Syntax autocommands, ignored by `:argdo`.
-		doautocmd Syntax
-	endif
+  for argidx in range(0, argc()-1)
+    execute argidx+1 'argument'
+    let argname = argv(argidx)
+    let fname   = s:goto_file_line(argname)
+    if fname != argname
+      execute argidx+1 'argdelete'
+      execute argidx   'argadd' fname
+    endif
+  endfor
+
+  if argc() > 1
+    execute '1argument'
+    filetype detect
+  endif
 endfunction
 
-autocmd VimEnter * call s:startup()
+function! s:goto_file_line(...)
+  let file_line_col = a:0 > 0 ? a:1 : bufname('%')
+  if filereadable(file_line_col) || file_line_col ==# ''
+    return file_line_col
+  endif
+
+  for regexp in s:regexps
+    let matches =  matchlist(file_line_col, regexp)
+    if !empty(matches)
+      let fname = matches[1]
+      let line  = matches[2] ==# '' ? '0' : matches[2]
+      let col   = matches[3] ==# '' ? '0' : matches[3]
+
+      if filereadable(fname)
+        let bufnr = bufnr('%')
+        exec 'keepalt edit ' . fnameescape(fname)
+        exec 'bwipeout ' bufnr
+
+        exec line
+        exec 'normal! ' . col . '|'
+        normal! zv
+        normal! zz
+        filetype detect
+      endif
+
+      return fname
+    endif
+  endfor
+endfunction
