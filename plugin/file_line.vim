@@ -35,11 +35,11 @@ function! s:startup()
       execute argidx+1 'argdelete'
       execute argidx   'argadd' fname
     endif
+    filetype detect
   endfor
 
   if argc() > 1
     execute '1argument'
-    filetype detect
   endif
 endfunction
 
