@@ -27,6 +27,7 @@ function! s:startup()
     autocmd! BufRead    * nested call s:goto_file_line()
   augroup END
 
+  let curidx = argidx()+1
   for argidx in range(0, argc()-1)
     execute argidx+1 'argument'
     let argname = argv(argidx)
@@ -39,7 +40,7 @@ function! s:startup()
   endfor
 
   if argc() > 1
-    execute '1argument'
+    execute curidx . 'argument'
   endif
 endfunction
 
