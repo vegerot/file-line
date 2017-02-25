@@ -29,7 +29,7 @@ function! s:startup()
 
   let curidx = argidx()+1
   for argidx in range(0, argc()-1)
-    execute argidx+1 'argument'
+    noautocmd execute argidx+1 'argument'
     let argname = argv(argidx)
     let fname   = s:goto_file_line(argname)
     if fname != argname
@@ -40,7 +40,7 @@ function! s:startup()
   endfor
 
   if argc() > 1
-    execute curidx . 'argument'
+    noautocmd execute curidx . 'argument'
   endif
 endfunction
 
