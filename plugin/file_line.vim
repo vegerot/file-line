@@ -4,17 +4,6 @@ endif
 let g:loaded_file_line = 1
 
 
-"
-" Define a list with all possible expressions:
-" * matches file(10) or file(line:col)
-" * Accept file:line:column: or file:line:column and file:line also
-"
-let s:regexps = [
-      \ '\([^(]\{-1,}\)(\%(\(\d\+\)\%(:\(\d*\):\?\)\?\))',
-      \ '\(.\{-1,}\):\%(\(\d\+\)\%(:\(\d*\):\?\)\?\)\?'
-      \]
-
-
 augroup file_line
   autocmd!
   autocmd VimEnter * call s:startup()
@@ -34,7 +23,7 @@ function! s:startup()
     let fname   = s:goto_file_line(argname)
     if fname != argname
       execute argidx+1 'argdelete'
-      execute argidx   'argadd' fname
+      execute argidx   'argadd' fnameescape(fname)
     endif
     filetype detect
   endfor
@@ -50,26 +39,31 @@ function! s:goto_file_line(...)
     return file_line_col
   endif
 
-  for regexp in s:regexps
-    let matches =  matchlist(file_line_col, regexp)
-    if !empty(matches)
-      let fname = matches[1]
-      let line  = matches[2] ==# '' ? '0' : matches[2]
-      let col   = matches[3] ==# '' ? '0' : matches[3]
+  " Regex to match variants like these
+  "   file(10)
+  "   file(line:col)
+  "   file:line:column:
+  "   file:line:column
+  "   file:line
+  let matches =  matchlist(file_line_col,
+        \ '\(.\{-1,}\)[(:]\(\d\+\)\%(:\(\d\+\):\?\)\?')
+  if empty(matches) | return file_line_col | endif
 
-      if filereadable(fname)
-        let bufnr = bufnr('%')
-        exec 'keepalt edit ' . fnameescape(fname)
-        exec 'bwipeout ' bufnr
+  let fname = matches[1]
+  let line  = matches[2] ==# '' ? '0' : matches[2]
+  let col   = matches[3] ==# '' ? '0' : matches[3]
 
-        exec line
-        exec 'normal! ' . col . '|'
-        normal! zv
-        normal! zz
-        filetype detect
-      endif
+  if filereadable(fname)
+    let bufnr = bufnr('%')
+    exec 'keepalt edit ' . fnameescape(fname)
+    exec 'bwipeout ' bufnr
 
-      return fname
-    endif
-  endfor
+    exec line
+    exec 'normal! ' . col . '|'
+    normal! zv
+    normal! zz
+    filetype detect
+  endif
+
+  return fname
 endfunction
