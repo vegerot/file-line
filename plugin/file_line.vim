@@ -33,7 +33,16 @@ function! s:goto_file_line(...)
     normal! zv
     normal! zz
     filetype detect
+    call s:crosshair_flash(3)
   endif
 
   return fname
+endfunction
+
+function! s:crosshair_flash(n) abort
+  " Flash crosshairs on current cursor line/column
+  " https://vi.stackexchange.com/a/3481/29697
+  for i in range(1,a:n)
+    set cul cuc | redraw | sleep 200m | set nocul nocuc | redraw | sleep 200m
+  endfor
 endfunction
