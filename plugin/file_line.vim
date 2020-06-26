@@ -39,10 +39,17 @@ function! s:goto_file_line(...)
   return fname
 endfunction
 
+
+" Flash crosshairs (reticle) on current cursor line/column to highlight it.
+" Particularly useful when the cursor is at head/tail end of file,
+" in which case it will not get centered.
+" Ref1: https://vi.stackexchange.com/a/3481/29697
+" Ref2: https://stackoverflow.com/a/33775128/38281
+let g:file_line_crosshairs = get(g:, 'file_line_crosshairs', 1)
 function! s:crosshair_flash(n) abort
-  " Flash crosshairs on current cursor line/column
-  " https://vi.stackexchange.com/a/3481/29697
-  for i in range(1,a:n)
-    set cul cuc | redraw | sleep 200m | set nocul nocuc | redraw | sleep 200m
-  endfor
+  if g:file_line_crosshairs
+    for i in range(1,a:n)
+      set cul cuc | redraw | sleep 200m | set nocul nocuc | redraw | sleep 200m
+    endfor
+  endif
 endfunction

@@ -36,6 +36,10 @@ With this little script in your plugins folder if the stuff after the colon is
 a number and a file exists with the name specified before the colon vim will
 open this file and take you to the line you wished in the first place. 
 
+Use this setting to disable the temporary flashing crosshairs on the cursor-line/column:
+
+    let g:file_line_crosshairs=0
+
 ## License
 
 This script is licensed with GPLv3.
