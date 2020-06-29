@@ -48,8 +48,13 @@ endfunction
 let g:file_line_crosshairs = get(g:, 'file_line_crosshairs', 1)
 function! s:crosshair_flash(n) abort
   if g:file_line_crosshairs
+    " Store settings
+    let l:cul = &cul | let l:cuc = &cuc
+    " Flash
     for i in range(1,a:n)
       set cul cuc | redraw | sleep 200m | set nocul nocuc | redraw | sleep 200m
     endfor
+    " Restore settings
+    let &cul=l:cul | let &cuc=l:cuc
   endif
 endfunction
