@@ -23,12 +23,11 @@ function! s:goto_file_line(...)
         \ '\(.\{-1,}\)[(:]\(\d\+\)\%(:\(\d\+\):\?\)\?')
   if empty(matches) | return file_line_col | endif
 
-  " Fallback column
-  let c0 = g:file_line_fallback_column0 ? '0|' : '^'
-
   let fname = matches[1]
-  let line  = matches[2] ==# '' ? '0' : matches[2]
-  let col   = matches[3] ==# '' ? c0  : matches[3].'|'
+  let line = !empty(matches[2]) ? matches[2] : '0'
+  let col = !empty(matches[3])
+        \ ? matches[3] . '|'
+        \ : (g:file_line_fallback_column0 ? '0|' : '^')
 
   if filereadable(fname)
     let bufnr = bufnr('%')
