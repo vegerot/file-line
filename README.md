@@ -7,7 +7,7 @@ This is a personal fork of
 was created to address [this](https://github.com/bogado/file-line/issues/52)
 issue, but since the code was so short I decided to rather rewrite it and do
 some simplifications.
- 
+
 ## Installation
 
 If you use [vim-plug](https://github.com/junegunn/vim-plug), then add the
@@ -34,11 +34,23 @@ Examples:
 
 With this little script in your plugins folder if the stuff after the colon is
 a number and a file exists with the name specified before the colon vim will
-open this file and take you to the line you wished in the first place. 
+open this file and take you to the line you wished in the first place.
 
-Use this setting to disable the temporary flashing crosshairs on the cursor-line/column:
+## Configuration
 
-    let g:file_line_crosshairs=0
+```vim
+" Specify fallback if column is not specified
+" * True: Go to first column in line (like normal |)
+" * False: Go to first nonblank column (like normal ^)
+let g:file_line_fallback_column0 = 1
+
+" Disable flashing crosshairs on the cursor line/column
+let g:file_line_crosshairs = 1
+
+" Customize crosshairs behaviour
+let g:file_line_crosshairs_number = 2
+let g:file_line_crosshairs_duration = 200
+```
 
 ## License
 
