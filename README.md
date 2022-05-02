@@ -34,17 +34,23 @@ Examples:
 
 With this little script in your plugins folder if the stuff after the colon is
 a number and a file exists with the name specified before the colon vim will
-open this file and take you to the line you wished in the first place. 
+open this file and take you to the line you wished in the first place.
 
-Use this setting to disable the temporary flashing crosshairs on the cursor-line/column:
+## Configuration
 
-    let g:file_line_crosshairs=0
+```vim
+" Specify fallback if column is not specified
+" * True: Go to first column in line (like normal |)
+" * False: Go to first nonblank column (like normal ^)
+let g:file_line_fallback_column0 = 1
 
-These settings customize the look and feel of the crosshairs.
+" Disable flashing crosshairs on the cursor line/column
+let g:file_line_crosshairs = 1
 
-    let g:file_line_fallback_column0     -- default 1 (true)
-    let g:file_line_crosshairs_number    -- default 2
-    let g:file_line_crosshairs_duration  -- default 200 (ms)
+" Customize crosshairs behaviour
+let g:file_line_crosshairs_number = 2
+let g:file_line_crosshairs_duration = 200
+```
 
 ## License
 
