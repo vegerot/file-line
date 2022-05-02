@@ -7,7 +7,7 @@ This is a personal fork of
 was created to address [this](https://github.com/bogado/file-line/issues/52)
 issue, but since the code was so short I decided to rather rewrite it and do
 some simplifications.
- 
+
 ## Installation
 
 If you use [vim-plug](https://github.com/junegunn/vim-plug), then add the
@@ -39,6 +39,12 @@ open this file and take you to the line you wished in the first place.
 Use this setting to disable the temporary flashing crosshairs on the cursor-line/column:
 
     let g:file_line_crosshairs=0
+
+These settings customize the look and feel of the crosshairs.
+
+    let g:file_line_fallback_column0     -- default 1 (true)
+    let g:file_line_crosshairs_number    -- default 2
+    let g:file_line_crosshairs_duration  -- default 200 (ms)
 
 ## License
 

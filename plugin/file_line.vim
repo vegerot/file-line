@@ -4,6 +4,8 @@ let g:loaded_file_line = 1
 " Options
 let g:file_line_crosshairs = get(g:, 'file_line_crosshairs', 1)
 let g:file_line_fallback_column0 = get(g:, 'file_line_fallback_column0', 1)
+let g:file_line_crosshairs_number = get(g:, 'file_line_crosshairs_number', 2)
+let g:file_line_crosshairs_duration = get(g:, 'file_line_crosshairs_duration', 200)
 
 augroup file_line
   autocmd!
@@ -39,7 +41,9 @@ function! s:goto_file_line(...)
     normal! zv
     normal! zz
     filetype detect
-    call s:crosshair_flash(3)
+    if g:file_line_crosshairs
+      call s:crosshair_flash(g:file_line_crosshairs_number, g:file_line_crosshairs_duration)
+    endif
   endif
 
   return fname
@@ -51,15 +55,13 @@ endfunction
 " in which case it will not get centered.
 " Ref1: https://vi.stackexchange.com/a/3481/29697
 " Ref2: https://stackoverflow.com/a/33775128/38281
-function! s:crosshair_flash(n) abort
-  if g:file_line_crosshairs
+function! s:crosshair_flash(n, d) abort
     " Store settings
     let l:cul = &cul | let l:cuc = &cuc
     " Flash
     for i in range(1,a:n)
-      set cul cuc | redraw | sleep 200m | set nocul nocuc | redraw | sleep 200m
+      set cul cuc | redraw | exec "sleep ".a:d."m" | set nocul nocuc | redraw | exec "sleep ".a:d."m"
     endfor
     " Restore settings
     let &cul=l:cul | let &cuc=l:cuc
-  endif
 endfunction
