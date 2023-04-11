@@ -37,7 +37,6 @@ function! s:goto_file_line(...)
   if filereadable(fname)
     let bufnr = bufnr('%')
     execute 'keepalt edit ' . fnameescape(fname)
-    execute 'bwipeout ' bufnr
 
     execute line
     execute 'normal! ' . col
